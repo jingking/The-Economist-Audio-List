@@ -37,11 +37,11 @@ var imgurlconfig = [
 	date:new Date(2012,8,16),//2012-09-16,//>= 2012-09-22
 	urlconfig:{
 		imgurl: "https://www.economist.com/img/b/400/526/90/sites/default/files/print-covers/{0}_{1}.jpg",
-		file:['cna1280','cuk1280','de_us','de_uk','cna400','cuk400','cna400hires', 'cna1248']
+		file:['cna1280','cuk1280','de_us','de_uk','cna400','cuk400','cna400hires', 'cna1248', 'cna1280_0']
 	}
 }
 ];
-//content ref
+//content ref 
 var imghref = "https://www.economist.com/printedition/{0}";
 
 
