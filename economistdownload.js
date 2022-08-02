@@ -39,6 +39,13 @@ var imgurlconfig = [
 		imgurl: "https://www.economist.com/img/b/400/526/90/sites/default/files/print-covers/{0}_{1}.jpg",
 		file:['cna1280','cuk1280','de_us','de_uk','cna400','cuk400','cna400hires', 'cna1248', 'cna1280_0']
 	}
+},
+{
+	date:new Date(2022,4,15),//2022-05-15,//>= 2022-05-21
+	urlconfig:{
+		imgurl: "https://www.economist.com/img/b/400/526/90/media-assets/image/{0}_{1}.jpg",
+		file:['DE_US','DE_UK']
+	}
 }
 ];
 //content ref 
