@@ -22,12 +22,14 @@ body h1 {
   margin: 0;
 }
 img {
-
-  width: 270px;
+  min-width:200px;
+  max-width:50%;
+  height:auto;
 }
 
 audio {
-	width: 300px;
+	min-width: 220px;
+	max-width: 100%;
 }
 
 #edition_content{
