@@ -1,6 +1,6 @@
 /*
 Created by Jing on Apr 19, 2021
-Last updated on Apr 23, 2021
+Last updated on Aug 12, 2022
 Retrive the audio file archive from The Economist CDN server.
 */
 
@@ -95,7 +95,9 @@ function getEditionDate(year,month,day){
   //special case 
   if (d.getFullYear() ==2011 && d.getMonth() == 11 && d.getDate() >=24)
     return new Date(2011, 11, 31);
-
+  //2022 summer double issue
+  if (d.getFullYear() ==2022 && d.getMonth() == 7 && d.getDate() < 13)
+	  return getEditionDate(year, month, day-7);
   if (d.getMonth() == 11 && d.getDate() >24 ){
     return getEditionDate(year, month, day-7);
    } //Christmas
@@ -179,7 +181,11 @@ function getEditionURL(d){
 }
 
 function getEditionIssue(d){
-	return Math.round(InitiaIssue - (year-InitiaYear) + (d-InitialDate)/(1000*60*60*24*7));
+//2022 summer double issue - 9308
+	var i = InitiaIssue;
+	if (d > new Date(2022,7,12))
+		i = 9225;
+	return Math.round(i - (year-InitiaYear) + (d-InitialDate)/(1000*60*60*24*7));
 }
 
 //get annual download list
