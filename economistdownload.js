@@ -98,6 +98,10 @@ function getEditionDate(year,month,day){
   //2022 summer double issue
   if (d.getFullYear() ==2022 && d.getMonth() == 7 && d.getDate() < 13)
 	  return getEditionDate(year, month, day-7);
+  //2023 summer double issue
+  if (d.getFullYear() ==2023 && d.getMonth() == 7 && d.getDate() < 12)
+	  return getEditionDate(year, month, day-7);
+  
   if (d.getMonth() == 11 && d.getDate() >24 ){
     return getEditionDate(year, month, day-7);
    } //Christmas
@@ -181,10 +185,13 @@ function getEditionURL(d){
 }
 
 function getEditionIssue(d){
-//2022 summer double issue - 9308
+//2022 summer double issue - 9307
+//2023 summer double issue - 9357
 	var i = InitiaIssue;
 	if (d > new Date(2022,7,12))
-		i = 9225;
+		i = i-1;
+	if (d > new Date(2023,7,11))
+		i = i-1;
 	return Math.round(i - (year-InitiaYear) + (d-InitialDate)/(1000*60*60*24*7));
 }
 
