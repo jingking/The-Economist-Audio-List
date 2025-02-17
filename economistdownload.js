@@ -177,7 +177,7 @@ async function getEditionURL(d){
 		audio:"",
 		download:"" 
 	}
-	if (year > 2024){// Old CDN URL stopped working since Dec 2024
+	if (d > new Date(2024,11,1)){// Old CDN URL stopped working since Dec 2024
 		datestr = d.toISOString().split('T')[0];
 		fetchIdByDate(datestr)
         const tagid = await fetchIdByDate(datestr);
