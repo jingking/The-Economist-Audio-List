@@ -1,10 +1,12 @@
 /*
 Created by Jing on Apr 19, 2021
-Last updated on Aug 20, 2023
+Last updated on Feb 12, 2025
 Retrive the audio file archive from The Economist CDN server.
 */
 
 const cdnurl = "https://audiocdn.economist.com/sites/default/files/AudioArchive/";
+const cdnurl_2025 = "https://economist.com/mobile-assets/{0}-audio.zip"
+const jsonUrl = "https://jingking.github.io/The-Economist-Audio-List/EditionsQuery.json";
 
 var urlstr_2012 = cdnurl + "{0}/{1}/{1}_TheEconomist_Full_Edition.{2}";
 var urlstr_2019 = cdnurl + "{0}/{1}/Issue_{2}_{1}_The_Economist_Full_Edition.{3}";
@@ -44,7 +46,7 @@ var imgurlconfig = [
 	date:new Date(2022,4,15),//2022-05-15,//>= 2022-05-21
 	urlconfig:{
 		imgurl: "https://www.economist.com/img/b/400/526/90/media-assets/image/{0}_{1}.jpg",
-		file:['DE_US','DE_UK']
+		file:['DE_US','DE_EU']
 	}
 }
 ];
@@ -66,19 +68,29 @@ function getEditionByDate(){
 	var year = document.getElementById("year").value;
 	var month = document.getElementById("month").value;
 	var day = document.getElementById("day").selectedIndex+1;
+
 	var d = getEditionDate(year,month,day);
+
 	if (d != null){
 		this.document.getElementById("edition_content").style.display = 'block';
-		MyEdition = getEdition(d);
-		if (MyEdition != null){
-			this.document.getElementById("edition_title").innerHTML = MyEdition.Title;
-			this.document.getElementById("edition_img").innerHTML = MyEdition.Image;
-			this.document.getElementById("edition_url").innerHTML = MyEdition.Title.link(MyEdition.DownloadURL);	
-			this.document.getElementById("edition_audiosource").src = MyEdition.AudioURL;
-			audio = this.document.getElementById("edition_audio");
-			audio.preload = "metadata";
-			audio.load();
-		}
+		getEdition(d)
+			.then(function(MyEdition){
+				if (MyEdition != null){
+					this.document.getElementById("edition_title").innerHTML = MyEdition.Title;
+					this.document.getElementById("edition_img").innerHTML = MyEdition.Image;
+					this.document.getElementById("edition_url").innerHTML = MyEdition.Title.link(MyEdition.DownloadURL);	
+					if (MyEdition.AudioURL != "")
+					{
+						this.document.getElementById("edition_audiosource").src = MyEdition.AudioURL;
+						audio = this.document.getElementById("edition_audio");
+						audio.preload = "metadata";
+						audio.load();
+					}
+					else{
+						this.document.getElementById("edition_audio").style.display = 'none';
+					}
+				}
+		})
 	}
 	else
 		this.document.getElementById("edition_title").innerHTML = "Error!";
@@ -87,7 +99,6 @@ function getEditionByDate(){
 //input any date, return valid weekly edition date
 function getEditionDate(year,month,day){
   var d = new Date(year, month, day);
-
   dayofweek = d.getDay();
   //console.log(dayofweek);
   if (dayofweek<6)
@@ -110,17 +121,17 @@ else
 }
 
 //assemble myedition
-function getEdition(d){
+async function getEdition(d){
 	if (d != null){
-		edition = new Object();
+		let edition = new Object();
 		edition.Date = d.toISOString().slice(0, 10);
 		edition.Issue = getEditionIssue(d);
 		edition.Title = getEditionTitle(d);
 		edition.Image = getEditionImg(d);
-		URLs = getEditionURL(d);
-		edition.AudioURL = URLs.audio;
-		edition.DownloadURL = URLs.download;
-		return edition;
+        const URLs = await getEditionURL(d);
+        edition.AudioURL = URLs.audio;
+        edition.DownloadURL = URLs.download;
+        return edition;
 	}
 	else 
 		return null;
@@ -157,31 +168,40 @@ function getEditionImg(d){
 }
 
 //input the weekly edition date, return date, m4a download url and zip file download url
-function getEditionURL(d){
+async function getEditionURL(d){
 	if (d.getMonth() == 11 && d.getDate() >24 && d.getDate() <31) return null;
 	datestr=d.toISOString().slice(0, 10).replace(/-/g, '');
 	year=datestr.slice(0,4);
-
-	issuestr=getEditionIssue(d);
-	//console.log(issuestr);
 	var URLs = {
 		date:"",
 		audio:"",
 		download:"" 
 	}
+	if (year > 2024){// Old CDN URL stopped working since Dec 2024
+		datestr = d.toISOString().split('T')[0];
+		fetchIdByDate(datestr)
+        const tagid = await fetchIdByDate(datestr);
+        URLs.download = cdnurl_2025.format(tagid);
+        return URLs;
+	
+	}else{
+	
+		issuestr=getEditionIssue(d);
 
-	URLs.date = datestr;
-	if (issuestr== 9136){
-		URLs.audio = urlstr.format(year,datestr,issuestr,extension.online);
-		URLs.download = urlstr_2019.format(year,datestr,issuestr,extension.download); 
-	}else if (issuestr> 8796){
-		URLs.audio = urlstr.format(year,datestr,issuestr,extension.online);
-		URLs.download = urlstr.format(year,datestr,issuestr,extension.download);
-	}else {
-		URLs.audio = urlstr_2012.format(year,datestr,extension.online);
-		URLs.download = urlstr_2012.format(year,datestr,extension.download);
+		URLs.date = datestr;
+		if (issuestr== 9136){
+			URLs.audio = urlstr.format(year,datestr,issuestr,extension.online);
+			URLs.download = urlstr_2019.format(year,datestr,issuestr,extension.download); 
+		}else if (issuestr> 8796){
+			URLs.audio = urlstr.format(year,datestr,issuestr,extension.online);
+			URLs.download = urlstr.format(year,datestr,issuestr,extension.download);
+		}else {
+			URLs.audio = urlstr_2012.format(year,datestr,extension.online);
+			URLs.download = urlstr_2012.format(year,datestr,extension.download);
+		}
+		return URLs;
 	}
-	return URLs;
+
 }
 
 function getEditionIssue(d){
@@ -196,20 +216,35 @@ function getEditionIssue(d){
 }
 
 //get annual download list
-function getDownloadList(){
+async function getDownloadList(){
 	this.document.getElementById("list").innerHTML = "";
 	year=document.getElementById("year_d").value;
-	
-	var d = getEditionDate(year,0,7);
-	var day = d.getDate();
-	
-	for(var i = day; i < 360; i=i+7){
-		if (year == 2011 && i==358){
-			i=365;
+	if (year > 2024)
+	{
+		fetchIdList()
+			.then(function(parts){
+				for (var i = 0; i < parts.length; i++){
+					var date = parts[i].datePublished;
+					var id = parts[i].id.split('/content/')[1];
+					var datestr = date.split('T')[0];
+					this.document.getElementById("list").innerHTML += datestr.link(cdnurl_2025.format(id)) + "<br />";
+				}
+			})
+	}
+	else{
+		var d = getEditionDate(year,0,7);
+		var day = d.getDate();
+		
+		for(var i = day; i < 360; i=i+7){
+			if (year == 2011 && i==358){
+				i=365;
+			}
+			getEditionURL(new Date(year,0,i))
+				.then(function(URLs){
+					if (URLs != null)
+						this.document.getElementById("list").innerHTML += URLs.date.link(URLs.download) + "<br />";
+			})
 		}
-		URLs = getEditionURL(new Date(year,0,i));
-		if (URLs != null)
-			this.document.getElementById("list").innerHTML += URLs.date.link(URLs.download) + "<br />";
 	}
 		
 }
@@ -236,5 +271,68 @@ document.addEventListener('error', function (event) {
 	event.target.style.display = 'none';
 }, true);
 
+async function fetchIdByDate(date) {
+    try {
+        const response = await fetch(jsonUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
 
+        // Loop through the JSON array
+		const parts = data?.data?.section?.hasPart?.parts || [];
+        const match = parts.find(part => part.datePublished.startsWith(date));
+        
+        if (match) {
+			id = match.id.split('/content/')[1];
+			return id;
+        } else {
+            console.log("No matching ID found for selecte issue.");
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching JSON:", error);
+    }
+}
 
+async function fetchIdByDate(date) {
+    try {
+        const response = await fetch(jsonUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        // Loop through the JSON array
+		const parts = data?.data?.section?.hasPart?.parts || [];
+        const match = parts.find(part => part.datePublished.startsWith(date));
+        
+        if (match) {
+			id = match.id.split('/content/')[1];
+			return id;
+        } else {
+            console.log("No matching ID found for selecte issue.");
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching JSON:", error);
+    }
+}
+
+async function fetchIdList() {
+    try {
+        const response = await fetch(jsonUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+		const parts = data?.data?.section?.hasPart?.parts || [];
+        if (parts != null) {			
+			return parts;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching JSON:", error);
+    }
+}
