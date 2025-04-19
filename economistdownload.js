@@ -224,8 +224,8 @@ async function getDownloadList(){
 		fetchIdList()
 			.then(function(parts){
 				for (var i = 0; i < parts.length; i++){
-					var date = parts[i].datePublished;
-					var id = parts[i].tegId;
+					var date = parts[i].node.datePublished;
+					var id = parts[i].node.tegId;
 					var datestr = date.split('T')[0];
 					this.document.getElementById("list").innerHTML += datestr.link(cdnurl_2025.format(id)) + "<br />";
 				}
