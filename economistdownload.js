@@ -1,12 +1,12 @@
 /*
 Created by Jing on Apr 19, 2021
-Last updated on Feb 12, 2025
+Last updated on Apr 18, 2025
 Retrive the audio file archive from The Economist CDN server.
 */
 
 const cdnurl = "https://audiocdn.economist.com/sites/default/files/AudioArchive/";
 const cdnurl_2025 = "https://economist.com/mobile-assets/{0}-audio.zip"
-const jsonUrl = "https://jingking.github.io/The-Economist-Audio-List/EditionsQuery.json";
+const jsonUrl = "https://jingking.github.io/The-Economist-Audio-List/searchEditions2025.json";
 
 var urlstr_2012 = cdnurl + "{0}/{1}/{1}_TheEconomist_Full_Edition.{2}";
 var urlstr_2019 = cdnurl + "{0}/{1}/Issue_{2}_{1}_The_Economist_Full_Edition.{3}";
@@ -225,7 +225,7 @@ async function getDownloadList(){
 			.then(function(parts){
 				for (var i = 0; i < parts.length; i++){
 					var date = parts[i].datePublished;
-					var id = parts[i].id.split('/content/')[1];
+					var id = parts[i].tegId;
 					var datestr = date.split('T')[0];
 					this.document.getElementById("list").innerHTML += datestr.link(cdnurl_2025.format(id)) + "<br />";
 				}
@@ -280,38 +280,14 @@ async function fetchIdByDate(date) {
         const data = await response.json();
 
         // Loop through the JSON array
-		const parts = data?.data?.section?.hasPart?.parts || [];
-        const match = parts.find(part => part.datePublished.startsWith(date));
-        
+		const edges = data?.data?.searchEditions?.edges || [];
+        const match = edges.find(edge => edge?.node?.issueDate?.startsWith(date));
+
         if (match) {
-			id = match.id.split('/content/')[1];
+            const id = match.node.tegId;
 			return id;
         } else {
-            console.log("No matching ID found for selecte issue.");
-            return null;
-        }
-    } catch (error) {
-        console.error("Error fetching JSON:", error);
-    }
-}
-
-async function fetchIdByDate(date) {
-    try {
-        const response = await fetch(jsonUrl);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-
-        // Loop through the JSON array
-		const parts = data?.data?.section?.hasPart?.parts || [];
-        const match = parts.find(part => part.datePublished.startsWith(date));
-        
-        if (match) {
-			id = match.id.split('/content/')[1];
-			return id;
-        } else {
-            console.log("No matching ID found for selecte issue.");
+            console.log("No matching ID found for selected issue.");
             return null;
         }
     } catch (error) {
@@ -326,7 +302,7 @@ async function fetchIdList() {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-		const parts = data?.data?.section?.hasPart?.parts || [];
+		const parts = data?.data?.searchEditions?.edges || [];
         if (parts != null) {			
 			return parts;
         } else {
