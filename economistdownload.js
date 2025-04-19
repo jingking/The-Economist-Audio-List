@@ -224,10 +224,11 @@ async function getDownloadList(){
 		fetchIdList()
 			.then(function(parts){
 				for (var i = 0; i < parts.length; i++){
-					var date = parts[i].node.datePublished;
+					var date = parts[i].node.issueDate;
 					var id = parts[i].node.tegId;
 					var datestr = date.split('T')[0];
-					this.document.getElementById("list").innerHTML += datestr.link(cdnurl_2025.format(id)) + "<br />";
+					this.document.getElementById("list").innerHTML += `<a href="${cdnurl_2025.format(id)}" download="${datestr}.zip">${datestr}</a><br />`;
+					 
 				}
 			})
 	}
