@@ -1,0 +1,653 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Economist | Weekly Edition Podcast</title>
+ 
+  <link rel="icon" href="https://www.economist.com/favicon.ico" sizes="32x32"/>
+  <link rel="icon" href="https://www.economist.com/engassets/ico/icon.svg" type="image/svg+xml"/>
+  <link rel="apple-touch-icon" href="https://www.economist.com/engassets/ico/apple-touch-icon.png"/>
+  
+  
+  <link rel="manifest" href="manifest/site.webmanifest">
+  <meta name="application-name" content="Econaudio">
+  <meta name="apple-mobile-web-app-title" content="Econaudio">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <style>
+    :root {
+      --plyr-color-main: #e3120b;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    button {
+      touch-action: manipulation;
+    }
+    .logo {
+      font-weight: bold;
+      color: var(--plyr-color-main);
+      font-size: clamp(20px, 5vw, 24px);
+      letter-spacing: -0.5px;
+    }
+    .economist-header {
+      border-bottom: 2px solid var(--plyr-color-main);
+    }
+    .playlist-item {
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 4px solid transparent;
+    }
+    .playlist-item:hover {
+      background-color: rgba(0,0,0,0.05);
+    }
+    .playlist-item.active {
+      background-color: rgba(253, 17, 13, 0.25);
+      border-left: 4px solid var(--plyr-color-main);
+    }
+    .item-section {
+      color: var(--plyr-color-main);
+      font-weight: bold;
+    }
+    .now-playing {
+      background: linear-gradient(to right, #777, #999);
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+    .read-article-link {
+      color: white;
+      text-decoration: none;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      transition: background-color 0.2s;
+      font-size: 0.8rem;
+    }
+    .read-article-link:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+    .read-article-link i {
+      font-size: 0.75rem;
+    }
+    .btn-economist {
+      background-color: white;
+      color: #4a5464;
+      aspect-ratio: 1;
+      transition: all 0.2s ease;
+    }
+    .btn-economist:hover {
+      background-color: rgba(0,0,0,0.05);
+    }
+    .btn-economist:disabled {
+      background-color: #ddd;
+      color: #999;
+      cursor: not-allowed;
+    }
+    .btn-economist.active {
+      color: var(--plyr-color-main);
+      background-color: white;
+      border-color: transparent;
+    }
+    .loading-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border-left-color: var(--plyr-color-main);
+      animation: spin 1s linear infinite;
+    }
+    .playlist-content {
+      max-height: 70vh;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      transition: max-height 0.3s ease;
+    }
+    .playlist-content::-webkit-scrollbar {
+      width: 6px;
+    }
+    .playlist-content::-webkit-scrollbar-thumb {
+      background-color: rgba(0,0,0,0.2);
+      border-radius: 3px;
+    }
+    .playlist-toggle {
+      transition: transform 0.3s;
+    }
+    .card.playlist-card {
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .playlist-collapsed .playlist-content {
+      max-height: 0;
+      overflow: hidden;
+    }
+    .playlist-collapsed .playlist-toggle {
+      transform: rotate(180deg);
+    }
+    .playlist-header .dropdown-menu {
+      position: fixed !important;
+    }
+    .now-playing-headline {
+      min-height: 70px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @media (max-width: 768px) {
+      .playlist-content {
+        max-height: 40vh;
+      }
+      .now-playing-headline {
+        min-height: 100px;
+      }
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <div class="container py-3 py-md-4" style="max-width: 1000px;">
+    <header class="d-flex flex-wrap align-items-center justify-content-between mb-3 mb-md-4 economist-header pb-2">
+      <div class="d-flex align-items-center mb-2 mb-md-0">
+        <div class="logo">The Economist</div>
+      </div>
+      <div class="col-auto">
+        <input type="date" id="editionDate" min="2018-01-06" class="form-control">
+      </div>
+    </header>
+    <div class="row g-3 g-md-4">
+      <div class="col-12 col-lg-5">
+        <div class="card playlist-card shadow-sm">
+          <div class="card-header bg-secondary bg-gradient text-white d-flex justify-content-between align-items-center p-2 playlist-header">
+            <div class="d-flex align-items-center">
+              <span class="edition-info text-uppercase"></span>
+              <div class="dropdown ms-2">
+                <button class="btn btn-sm text-warning bg-secondary bg-gradient" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Open in Media Player">
+                  <i class="fa-solid fa-fw fa-headphones"></i>
+                  Playlist
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" id="vlcLink" href="#"><i class="fa-solid fa-fw fa-play"></i> VLC</a></li>
+                  <li><a class="dropdown-item" id="potPlayerLink" href="#"><i class="fa-brands fa-fw fa-windows"></i> PotPlayer</a></li>
+                  <li><a class="dropdown-item" id="iinaLink" href="#"><i class="fa-brands fa-fw fa-apple"></i> IINA</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" id="downloadM3u" href="#"><i class="fa-solid fa-fw fa-download"></i> Download M3U</a></li>
+                  <li><a class="dropdown-item" id="downloadZip" href="#"><i class="fa-solid fa-fw fa-file-zipper"></i> Download ZIP</a></li>
+                </ul>
+              </div>
+            </div>
+            <button class="playlist-toggle bg-transparent border-0 text-white" aria-label="Toggle playlist">
+              <i class="fa-solid fa-fw fa-chevron-down"></i>
+            </button>
+          </div>
+          <div id="playlistContent" class="playlist-content">
+            <div class="d-flex justify-content-center align-items-center p-5">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-7">
+        <div class="card shadow-sm">
+          <div class="now-playing text-white p-3">
+            <div>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="now-playing-section fw-bold"></div>
+                <a href="#" class="read-article-link text-warning d-flex align-items-center gap-1 p-1 px-2" id="readArticleLink" target="_blank" rel="noopener">
+                  <i class="fa-solid fa-fw fa-external-link"></i>
+                  Read Article
+                </a>
+              </div>
+              <h5 class="now-playing-headline my-2">Select an audio from the playlist</h5>
+            </div>
+          </div>
+          <div class="m-2">
+            <div class="d-flex justify-content-center gap-3 gap-md-4">
+              <button class="btn btn-economist btn-lg rounded-2 d-flex align-items-center justify-content-center" id="shuffleBtn" data-bs-toggle="tooltip" title="Enable Shuffle">
+                <i class="fa-solid fa-fw fa-shuffle"></i>
+              </button>
+              <button class="btn btn-economist btn-lg rounded-2 d-flex align-items-center justify-content-center" id="prevBtn" data-bs-toggle="tooltip" title="Previous" disabled>
+                <i class="fa-solid fa-fw fa-backward-step"></i>
+              </button>
+              <button class="btn btn-economist btn-lg rounded-2 d-flex align-items-center justify-content-center" id="nextBtn" data-bs-toggle="tooltip" title="Next" disabled>
+                <i class="fa-solid fa-fw fa-forward-step"></i>
+              </button>
+              <button class="btn btn-economist btn-lg rounded-2 d-flex align-items-center justify-content-center" id="repeatBtn" data-bs-toggle="tooltip" title="Enable Repeat">
+                <i class="fa-solid fa-fw fa-repeat"></i>
+              </button>
+            </div>
+            <audio id="player" controls></audio>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.13/dayjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.13/plugin/advancedFormat.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.13/plugin/utc.min.js"></script>
+  <script>
+    dayjs.extend(window.dayjs_plugin_advancedFormat);
+    dayjs.extend(window.dayjs_plugin_utc);
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      let tracks = [];
+      let currentTrackIndex = 0;
+      let isPlaying = false;
+      let isRepeat = false;
+      let isShuffleOn = false;
+      let shuffleOrder = [];
+      let currentEdition = '';
+      let m3uContent = '';
+      let currentEditionTegId = '';
+      
+      const audioPlayer = document.getElementById('player');
+      const playlistContent = document.getElementById('playlistContent');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const shuffleBtn = document.getElementById('shuffleBtn');
+      const repeatBtn = document.getElementById('repeatBtn');
+      const nowPlayingSection = document.querySelector('.now-playing-section');
+      const nowPlayingHeadline = document.querySelector('.now-playing-headline');
+      const readArticleLink = document.getElementById('readArticleLink');
+      const editionInfo = document.querySelector('.edition-info');
+      const editionDatePicker = document.getElementById('editionDate');
+      const playlistToggle = document.querySelector('.playlist-toggle');
+      const playlistCardElement = document.querySelector('.col-12.col-lg-5 .card');
+      const vlcLink = document.getElementById('vlcLink');
+      const potPlayerLink = document.getElementById('potPlayerLink');
+      const iinaLink = document.getElementById('iinaLink');
+      const downloadM3uLink = document.getElementById('downloadM3u');
+      const downloadZipLink = document.getElementById('downloadZip');
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl, {trigger: 'hover'}))
+      
+      readArticleLink.style.display = 'none';
+      
+      const player = new Plyr('#player', {
+          speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
+          keyboard: { focused: true, global: true },
+          tooltips: { controls: true, seek: true }
+      });
+      
+      player.on('loop', (event) => {
+        isRepeat = player.loop;
+        updateRepeatButtonUI();
+      });
+      
+      playlistToggle.addEventListener('click', function() {
+        const playlistCardElement = document.querySelector('.col-12.col-lg-5 .card');
+        playlistCardElement.classList.toggle('playlist-collapsed');
+      });
+      
+      const today = new Date();
+      const maxDate = new Date();
+      maxDate.setDate(today.getDate());
+      const maxDateStr = maxDate.toISOString().split('T')[0];
+      editionDatePicker.setAttribute('max', maxDateStr);
+
+      function getLatestSaturday() {
+        const now = dayjs().utc();
+        const day = now.day();
+        return day === 6 ? now : now.subtract((day + 1) % 7, 'day');
+      }
+      const latestSaturday = getLatestSaturday();
+      editionDatePicker.valueAsDate = latestSaturday.toDate();
+
+      editionDatePicker.addEventListener('change', function() {
+        const selectedDateStr = this.value;
+        const selectedDate = dayjs(selectedDateStr).utc();
+        const dayOfWeek = selectedDate.day();
+        let closestSaturday;
+        if (dayOfWeek !== 6) {
+          const daysToPrevSaturday = (dayOfWeek + 1) % 7;
+          const daysToNextSaturday = (6 - dayOfWeek) % 7;
+          if (daysToPrevSaturday <= daysToNextSaturday) {
+            closestSaturday = selectedDate.subtract(daysToPrevSaturday, 'day');
+          } else {
+            closestSaturday = selectedDate.add(daysToNextSaturday, 'day');
+          }
+          this.value = closestSaturday.format('YYYY-MM-DD');
+        } else {
+          closestSaturday = selectedDate;
+        }
+        loadEdition(closestSaturday.format('YYYY-MM-DD'));
+      });
+
+      downloadM3uLink.addEventListener('click', function(e) {
+        if (currentEdition) {
+          const m3uUrl = `https://gitlab.com/Monkfishare/econaudio/-/raw/main/assets/playlist/economist_${currentEdition}.m3u?ref_type=heads&inline=false`;
+          window.location.href = m3uUrl;
+        }
+      });
+
+      downloadZipLink.addEventListener('click', function(e) {
+        if (currentEditionTegId) {
+          const zipUrl = `https://economist.com/mobile-assets/${currentEditionTegId}-audio.zip`;
+          window.location.href = zipUrl;
+        }
+      });
+
+      function updateM3uLinks(editionDate) {
+        const baseGitLabUrl = 'https://gitlab.com/Monkfishare/econaudio/-/raw/main/assets/playlist';
+        const m3uUrl = `${baseGitLabUrl}/economist_${editionDate}.m3u?ref_type=heads&inline=false`;
+        vlcLink.href = `vlc://${m3uUrl}`;
+        potPlayerLink.href = `potplayer://${m3uUrl}`;
+        const encodedUrl = encodeURIComponent(m3uUrl);
+        iinaLink.href = `iina://weblink?url=${encodedUrl}`;
+        downloadM3uLink.href = m3uUrl;
+      }
+
+      function updateZipLink(tegId) {
+        if (tegId) {
+          const zipUrl = `https://economist.com/mobile-assets/${tegId}-audio.zip`;
+          downloadZipLink.href = zipUrl;
+          downloadZipLink.classList.remove('disabled');
+        } else {
+          downloadZipLink.classList.add('disabled');
+        }
+      }
+
+      async function findEditionTegId(editionDate) {
+        try {
+          const response = await fetch('https://raw.githubusercontent.com/jingking/The-Economist-Audio-List/main/searchEditions2025.json');
+          if (!response.ok) {
+            throw new Error('Failed to fetch editions data');
+          }
+          const data = await response.json();
+          const edges = data.data.searchEditions.edges;
+          const formattedEditionDate = editionDate;
+          const matchingEdition = edges.find(edge => {
+            const issueDate = edge.node.issueDate.split('T')[0];
+            return issueDate === formattedEditionDate;
+          });
+          return matchingEdition ? matchingEdition.node.tegId : null;
+        } catch (error) {
+          console.error('Error fetching tegId:', error);
+          return null;
+        }
+      }
+
+      async function loadEdition(editionDate) {
+          currentEdition = editionDate;
+          const dateObj = dayjs(editionDate).utc();
+          const saturdayDate = dateObj.day() === 6 ? dateObj : dateObj.day(6);
+          const formattedDate = saturdayDate.format('MMM Do YYYY');
+          const formattedDateValue = saturdayDate.format('YYYY-MM-DD');
+          editionInfo.textContent = formattedDate;
+          editionDatePicker.value = formattedDateValue;
+          playlistContent.innerHTML = `<div class="d-flex justify-content-center align-items-center p-5"><div class="loading-spinner"></div></div>`;
+          audioPlayer.src = '';
+          nowPlayingSection.textContent = '';
+          nowPlayingHeadline.textContent = 'Loading...';
+          readArticleLink.style.display = 'none';
+          updateM3uLinks(editionDate);
+          
+          currentEditionTegId = await findEditionTegId(editionDate);
+          updateZipLink(currentEditionTegId);
+          
+          fetch(`https://monkfishare.gitlab.io/econaudio/assets/audio/economist_${editionDate}.json`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Edition not found');
+              }
+              return response.json();
+            })
+            .then(data => {
+              tracks = data.archive;
+              renderPlaylist(tracks);
+              if (tracks && tracks.length > 0) {
+                currentTrackIndex = 0;
+                loadTrack(0);
+              }
+            })
+            .catch(error => {
+              playlistContent.innerHTML = `
+                <div class="text-center p-4">
+                  <h5>No Audio Edition Available</h5>
+                  <p>The audio edition for ${editionDate} could not be found.</p>
+                  <p>Please select another date.</p>
+                </div>
+              `;
+              tracks = [];
+              updateButtons();
+              nowPlayingHeadline.textContent = 'Select an audio from the playlist';
+            });
+      }
+      
+      function renderPlaylist(tracks) {
+        if (!tracks || tracks.length === 0) {
+          playlistContent.innerHTML = '<div class="text-center p-4">No articles available</div>';
+          return;
+        }
+        const ul = document.createElement('ul');
+        ul.className = 'list-group list-group-flush';
+        tracks.forEach((track, index) => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item playlist-item';
+          li.dataset.index = index;
+          li.innerHTML = `
+            <div class="item-section">${track.articleSection}</div>
+            <h6 class="mb-0"><span class="text-secondary small me-1">${track.id}</span>${track.headline}</h6>
+          `;
+          li.addEventListener('click', () => {
+            currentTrackIndex = index;
+            loadTrack(index);
+            playTrack();
+          });
+          ul.appendChild(li);
+        });
+        playlistContent.innerHTML = '';
+        playlistContent.appendChild(ul);
+        updateButtons();
+      }
+      
+      function loadTrack(index) {
+        if (!tracks || index >= tracks.length || index < 0) return;
+        const track = tracks[index];
+        audioPlayer.src = track.audio_url;
+        player.loop = isRepeat;
+        nowPlayingSection.textContent = track.articleSection;
+        nowPlayingHeadline.textContent = track.headline;
+        if (track.article_url) {
+          readArticleLink.href = track.article_url;
+          readArticleLink.style.display = 'flex';
+        } else {
+          readArticleLink.style.display = 'none';
+        }
+        document.querySelectorAll('.playlist-item').forEach(item => {
+          item.classList.remove('active');
+        });
+        const activeItem = document.querySelector(`.playlist-item[data-index="${index}"]`);
+        if (activeItem) {
+          activeItem.classList.add('active');
+          activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        updateButtons();
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: track.headline,
+            artist: track.articleSection,
+            album: `The Economist Audio Edition - ${editionInfo.textContent}`,
+            artwork: [
+              { src: 'https://monkfishare.gitlab.io/econaudio/assets/images/podcast_cover.png', type: 'image/png' }
+            ]
+          });
+          setupMediaSessionHandlers();
+        }
+      }
+      
+      function setupMediaSessionHandlers() {
+        if (!('mediaSession' in navigator)) return;
+        navigator.mediaSession.setActionHandler('play', () => {
+          playTrack();
+          player.play();
+        });
+        navigator.mediaSession.setActionHandler('pause', () => {
+          pauseTrack();
+          player.pause();
+        });
+        navigator.mediaSession.setActionHandler('previoustrack', () => {
+          prevTrack();
+        });
+        navigator.mediaSession.setActionHandler('nexttrack', () => {
+          nextTrack();
+        });
+        navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+          const skipTime = details.seekOffset || 10;
+          audioPlayer.currentTime = Math.max(audioPlayer.currentTime - skipTime, 0);
+        });
+        navigator.mediaSession.setActionHandler('seekforward', (details) => {
+          const skipTime = details.seekOffset || 10;
+          audioPlayer.currentTime = Math.min(audioPlayer.currentTime + skipTime, audioPlayer.duration);
+        });
+        try {
+          navigator.mediaSession.setActionHandler('seekto', (details) => {
+            if (details.fastSeek && 'fastSeek' in audioPlayer) {
+              audioPlayer.fastSeek(details.seekTime);
+              return;
+            }
+            audioPlayer.currentTime = details.seekTime;
+          });
+        } catch (error) {
+          console.log('Seekto is not supported.');
+        }
+      }
+      
+      function playTrack() {
+        audioPlayer.play();
+        isPlaying = true;
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.playbackState = 'playing';
+        }
+      }
+      
+      function pauseTrack() {
+        audioPlayer.pause();
+        isPlaying = false;
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.playbackState = 'paused';
+        }
+      }
+      
+      function nextTrack() {
+        if (!tracks || tracks.length === 0) return;
+        
+        if (isShuffleOn) {
+          const currentShuffleIndex = shuffleOrder.indexOf(currentTrackIndex);
+          const nextShuffleIndex = (currentShuffleIndex + 1) % shuffleOrder.length;
+          currentTrackIndex = shuffleOrder[nextShuffleIndex];
+        } else {
+          currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+        }
+        loadTrack(currentTrackIndex);
+        playTrack();
+      }
+      
+      function prevTrack() {
+        if (!tracks || tracks.length === 0) return;
+        if (isShuffleOn) {
+          const currentShuffleIndex = shuffleOrder.indexOf(currentTrackIndex);
+          const prevShuffleIndex = (currentShuffleIndex - 1 + shuffleOrder.length) % shuffleOrder.length;
+          currentTrackIndex = shuffleOrder[prevShuffleIndex];
+        } else {
+          currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+        }
+        loadTrack(currentTrackIndex);
+        playTrack();
+      }
+      
+      function toggleShuffle() {
+        isShuffleOn = !isShuffleOn;
+        if (isShuffleOn) {
+          shuffleOrder = [...Array(tracks.length).keys()];
+          for (let i = shuffleOrder.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffleOrder[i], shuffleOrder[j]] = [shuffleOrder[j], shuffleOrder[i]];
+          }
+          shuffleBtn.classList.add('active');
+          bootstrap.Tooltip.getInstance(shuffleBtn).setContent({ '.tooltip-inner': 'Disable Shuffle' });
+        } else {
+          shuffleBtn.classList.remove('active');
+          bootstrap.Tooltip.getInstance(shuffleBtn).setContent({ '.tooltip-inner': 'Enable Shuffle' });
+        }
+      }
+      
+      function toggleRepeat() {
+        isRepeat = !isRepeat;
+        player.loop = isRepeat;
+        updateRepeatButtonUI();
+      }
+      
+      function updateRepeatButtonUI() {
+        if (isRepeat) {
+          repeatBtn.classList.add('active');
+          bootstrap.Tooltip.getInstance(repeatBtn).setContent({ '.tooltip-inner': 'Disable Repeat' });
+        } else {
+          repeatBtn.classList.remove('active');
+          bootstrap.Tooltip.getInstance(repeatBtn).setContent({ '.tooltip-inner': 'Enable Repeat' });
+        }
+      }
+      
+      function updateButtons() {
+        const hasNoTracks = !tracks || tracks.length === 0;
+        prevBtn.disabled = hasNoTracks;
+        nextBtn.disabled = hasNoTracks;
+        shuffleBtn.disabled = hasNoTracks;
+        repeatBtn.disabled = hasNoTracks;
+      }
+
+      prevBtn.addEventListener('click', prevTrack);
+      nextBtn.addEventListener('click', nextTrack);
+      shuffleBtn.addEventListener('click', toggleShuffle);
+      repeatBtn.addEventListener('click', toggleRepeat);
+      
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'l' || event.key === 'L') {
+          requestAnimationFrame(() => {
+            isRepeat = player.loop;
+            updateRepeatButtonUI();
+          });
+        }
+      });
+      
+      audioPlayer.addEventListener('ended', () => {
+        if (!isRepeat) {
+          nextTrack();
+        }
+      });
+
+      player.on('play', () => {
+        isPlaying = true;
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.playbackState = 'playing';
+        }
+      });
+      player.on('pause', () => {
+        isPlaying = false;
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.playbackState = 'paused';
+        }
+      });
+      player.on('timeupdate', () => {
+        if ('setPositionState' in navigator.mediaSession) {
+          try {
+            navigator.mediaSession.setPositionState({
+              duration: audioPlayer.duration,
+              playbackRate: audioPlayer.playbackRate,
+              position: audioPlayer.currentTime
+            });
+          } catch (e) {
+            console.log('Position state update failed:', e);
+          }
+        }
+      });
+
+      loadEdition(dayjs().day(-1).format('YYYY-MM-DD'));
+    });
+  </script>
+</body>
+</html>
