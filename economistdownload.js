@@ -69,7 +69,7 @@ function getEditionByDate(){
 	var month = document.getElementById("month").value;
 	var day = document.getElementById("day").selectedIndex+1;
 
-	var d = getEditionDate(Date.UTC(year,month,day));
+	var d = getEditionDate(year,month,day);
 
 	if (d != null){
 		this.document.getElementById("edition_content").style.display = 'block';
@@ -98,7 +98,7 @@ function getEditionByDate(){
 
 //input any date, return valid weekly edition date
 function getEditionDate(year,month,day){
-  var d = new Date(year, month, day);
+  var d = new Date(Date.UTC(year, month, day));
   dayofweek = d.getDay();
   //console.log(dayofweek);
   if (dayofweek<6)
