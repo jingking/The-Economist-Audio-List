@@ -17,33 +17,33 @@ let extension = {
   online: "m4a"
 };
 const InitiaYear = 2021;
-const InitialDate = new Date(InitiaYear,0,2);
+const InitialDate = new Date(Date.UTC(InitiaYear,0,2));
 const InitiaIssue = 9226;
 //cover image config 
 var imgurlconfig = [
 {
-	date:new Date(2000,0,1),//2000-01-01,//
+	date:new Date(Date.UTC(2000,0,1)),//2000-01-01,//
 	urlconfig:{
 		imgurl: "https://www.economist.com/img/b/400/526/90/sites/default/files/{0}issuecov{1}.jpg",
 		file:['US400','UK400']
 	}
 },
 {
-	date:new Date(2010,8,5),//2010-09-05,//>= 2010-09-11
+	date:new Date(Date.UTC(2010,8,5)),//2010-09-05,//>= 2010-09-11
 	urlconfig:{
 		imgurl: "https://www.economist.com/img/b/400/526/90/sites/default/files/{0}_{1}.jpg",
 		file:['cna400','cuk400','cuk400hires','cna400hires','CNA400']
 	}
 },
 {
-	date:new Date(2012,8,16),//2012-09-16,//>= 2012-09-22
+	date:new Date(Date.UTC(2012,8,16)),//2012-09-16,//>= 2012-09-22
 	urlconfig:{
 		imgurl: "https://www.economist.com/img/b/400/526/90/sites/default/files/print-covers/{0}_{1}.jpg",
 		file:['cna1280','cuk1280','de_us','de_uk','cna400','cuk400','cna400hires', 'cna1248', 'cna1280_0']
 	}
 },
 {
-	date:new Date(2022,4,15),//2022-05-15,//>= 2022-05-21
+	date:new Date(Date.UTC(2022,4,15)),//2022-05-15,//>= 2022-05-21
 	urlconfig:{
 		imgurl: "https://www.economist.com/img/b/400/526/90/media-assets/image/{0}_{1}.jpg",
 		file:['DE_US','DE_EU']
@@ -98,22 +98,22 @@ function getEditionByDate(){
 
 //input any date, return valid weekly edition date
 function getEditionDate(year,month,day){
-  var d = new Date(year, month, day);
-  dayofweek = d.getDay();
+  var d = new Date(Date.UTC(year, month, day));
+  dayofweek = d.getUTCDay();
   //console.log(dayofweek);
   if (dayofweek<6)
-	d = new Date(year, month, day-1-dayofweek);
+	d = new Date(Date.UTC(year, month, day-1-dayofweek));
   //special case 
-  if (d.getFullYear() ==2011 && d.getMonth() == 11 && d.getDate() >=24)
-    return new Date(2011, 11, 31);
+  if (d.getUTCFullYear() ==2011 && d.getUTCMonth() == 11 && d.getUTCDate() >=24)
+    return new Date(Date.UTC(2011, 11, 31));
   //2022 summer double issue
-  if (d.getFullYear() ==2022 && d.getMonth() == 7 && d.getDate() < 13)
+  if (d.getUTCFullYear() ==2022 && d.getUTCMonth() == 7 && d.getUTCDate() < 13)
 	  return getEditionDate(year, month, day-7);
   //2023 summer double issue
-  if (d.getFullYear() ==2023 && d.getMonth() == 7 && d.getDate() < 12)
+  if (d.getUTCFullYear() ==2023 && d.getUTCMonth() == 7 && d.getUTCDate() < 12)
 	  return getEditionDate(year, month, day-7);
   
-  if (d.getMonth() == 11 && d.getDate() >24 ){
+  if (d.getUTCMonth() == 11 && d.getUTCDate() >24 ){
     return getEditionDate(year, month, day-7);
    } //Christmas
 else
@@ -169,7 +169,7 @@ function getEditionImg(d){
 
 //input the weekly edition date, return date, m4a download url and zip file download url
 async function getEditionURL(d){
-	if (d.getMonth() == 11 && d.getDate() >24 && d.getDate() <31) return null;
+	if (d.getUTCMonth() == 11 && d.getUTCDate() >24 && d.getUTCDate() <31) return null;
 	datestr=d.toISOString().slice(0, 10).replace(/-/g, '');
 	year=datestr.slice(0,4);
 	var URLs = {
@@ -177,7 +177,7 @@ async function getEditionURL(d){
 		audio:"",
 		download:"" 
 	}
-	if (d > new Date(2024,11,1)){// Old CDN URL stopped working since Dec 2024
+	if (d > new Date(Date.UTC(2024,11,1))){// Old CDN URL stopped working since Dec 2024
 		datestr = d.toISOString().split('T')[0];
 		fetchIdByDate(datestr)
         const tagid = await fetchIdByDate(datestr);
@@ -208,9 +208,9 @@ function getEditionIssue(d){
 //2022 summer double issue - 9307
 //2023 summer double issue - 9357
 	var i = InitiaIssue;
-	if (d > new Date(2022,7,12))
+	if (d > new Date(Date.UTC(2022,7,12)))
 		i = i-1;
-	if (d > new Date(2023,7,11))
+	if (d > new Date(Date.UTC(2023,7,11)))
 		i = i-1;
 	return Math.round(i - (year-InitiaYear) + (d-InitialDate)/(1000*60*60*24*7));
 }
@@ -234,13 +234,13 @@ async function getDownloadList(){
 	}
 	else{
 		var d = getEditionDate(year,0,7);
-		var day = d.getDate();
+		var day = d.getUTCDate();
 		
 		for(var i = day; i < 360; i=i+7){
 			if (year == 2011 && i==358){
 				i=365;
 			}
-			getEditionURL(new Date(year,0,i))
+			getEditionURL(new Date(Date.UTC(year,0,i)))
 				.then(function(URLs){
 					if (URLs != null)
 						this.document.getElementById("list").innerHTML += URLs.date.link(URLs.download) + "<br />";
