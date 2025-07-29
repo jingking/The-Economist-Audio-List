@@ -1,0 +1,63 @@
+name: Weekly JSON Update
+
+on:
+  schedule:
+    - cron: '0 8 * * 5' # Runs every Friday midnight (PST)
+  workflow_dispatch: 
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    env:
+      MERGED_FILE_NAME: searchEditions2025.json  #define output file name
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Download new json
+        run: |
+          curl -sSL "$ENDPOINT" \
+            -H "Content-Type: application/json" \
+            -H "x-apollo-operation-name: dummyOperation" \
+            -o new.json
+        env:
+          ENDPOINT: ${{ secrets.endpoint }}
+
+      - name: Verify new.json exists
+        run: |
+          test -s new.json || (echo "Download failed or file is empty!" && exit 1)
+
+      #- name: Show download result
+      #  run: cat new.json
+
+      - name: Ensure merged file exists
+        run: |
+          test -f "$MERGED_FILE_NAME" || (echo "previous json file is missing!" && exit 1)
+
+      - name: Merge JSON and remove duplicates by node.id
+        run: |
+          jq -s '
+            {
+              data: {
+                searchEditions: {
+                  edges: (
+                    map(.data.searchEditions.edges) | add
+                    | unique_by(.node.id)
+                  )
+                }
+              }
+            }
+          ' new.json "$MERGED_FILE_NAME" > temp.json && mv -f temp.json "$MERGED_FILE_NAME"
+
+
+      - name: Commit and push merged.json (optional)
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add "$MERGED_FILE_NAME"
+          git commit -m "Update merged.json" || echo "No changes to commit"
+          git push
