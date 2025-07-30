@@ -46,7 +46,7 @@ jobs:
                 searchEditions: {
                   edges: (
                     map(.data.searchEditions.edges) | add
-                    | unique_by(.node.id)
+                    | unique_by(.node.issueDate)
                   )
                 }
               }
