@@ -9,7 +9,7 @@ jobs:
   merge:
     runs-on: ubuntu-latest
     env:
-      MERGED_FILE_NAME: searchEditions2025.json  #define output file name
+      MERGED_FILE_NAME: searchEditions2026.json  #define output file name
       
     steps:
       - name: Checkout repository
