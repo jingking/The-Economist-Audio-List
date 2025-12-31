@@ -1,12 +1,14 @@
 /*
 Created by Jing on Apr 19, 2021
 Last updated on Apr 18, 2025
-Retrive the audio file archive from The Economist CDN server.
+Retrieve the audio archive from The Economist's CDN server.
 */
 
 const cdnurl = "https://audiocdn.economist.com/sites/default/files/AudioArchive/";
 const cdnurl_2025 = "https://economist.com/mobile-assets/{0}-audio.zip"
-const jsonUrl = "https://jingking.github.io/The-Economist-Audio-List/searchEditions2025.json";
+const jsonurl_2025 = "https://jingking.github.io/The-Economist-Audio-List/searchEditions{0}.json";
+
+var jsonUrl = "";
 
 var urlstr_2012 = cdnurl + "{0}/{1}/{1}_TheEconomist_Full_Edition.{2}";
 var urlstr_2019 = cdnurl + "{0}/{1}/Issue_{2}_{1}_The_Economist_Full_Edition.{3}";
@@ -138,12 +140,12 @@ async function getEdition(d){
  }
 
 function getEditionTitle(d){
-//need to retrive title from official website
+//need to retrieve title from official website
 //use Date as a placeholder for now.
 	return "Weekly Edition "+d.toISOString().slice(0, 10);
 }
 
-//get cover image and asseble HTML output
+//get cover image and assemble HTML output
 function getEditionImg(d){
 	var imageresults = document.createElement("a");
 	var datestr=d.toISOString().slice(0, 10);
@@ -179,6 +181,7 @@ async function getEditionURL(d){
 	}
 	if (d > new Date(Date.UTC(2024,11,1))){// Old CDN URL stopped working since Dec 2024
 		datestr = d.toISOString().split('T')[0];
+		jsonUrl = jsonurl_2025.format(year);
 		fetchIdByDate(datestr)
         const tagid = await fetchIdByDate(datestr);
         URLs.download = cdnurl_2025.format(tagid);
@@ -221,6 +224,7 @@ async function getDownloadList(){
 	year=document.getElementById("year_d").value;
 	if (year > 2024)
 	{
+		jsonUrl = jsonurl_2025.format(year);
 		fetchIdList()
 			.then(function(parts){
 				for (var i = 0; i < parts.length; i++){
@@ -313,3 +317,4 @@ async function fetchIdList() {
         console.error("Error fetching JSON:", error);
     }
 }
+
