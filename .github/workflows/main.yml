@@ -9,7 +9,8 @@ jobs:
   merge:
     runs-on: ubuntu-latest
     env:
-      MERGED_FILE_NAME: searchEditions2026.json  #define output file name
+      MERGED_FILE_NAME: searchEditions$(date +%Y).json  #define output file name
+      CURRENT_YEAR: $(date +%Y)  #get current year
       
     steps:
       - name: Checkout repository
@@ -34,9 +35,13 @@ jobs:
       #- name: Show download result
       #  run: cat new.json
 
-      - name: Ensure merged file exists
+
+      - name: Ensure merged file exists or create fallback
         run: |
-          test -f "$MERGED_FILE_NAME" || (echo "previous json file is missing!" && exit 1)
+          if [ ! -f "$MERGED_FILE_NAME" ]; then
+            echo '{"data":{"searchEditions":{"edges":[]}}}' > "$MERGED_FILE_NAME"
+            echo "Created new fallback file $MERGED_FILE_NAME"
+          fi
 
       - name: Merge JSON and remove duplicates by node.id
         run: |
@@ -46,8 +51,9 @@ jobs:
                 searchEditions: {
                   edges: (
                     map(.data.searchEditions.edges) | add
+                    | map(select(.node.issueDate | startswith(env.CURRENT_YEAR)))
                     | unique_by(.node.issueDate)
-                    | reverse      
+                    | reverse
                   )
                 }
               }
