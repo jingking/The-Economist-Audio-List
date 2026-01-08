@@ -179,7 +179,7 @@ async function getEditionURL(d){
 		audio:"",
 		download:"" 
 	}
-	if (d > new Date(Date.UTC(2024,11,1))){// Old CDN URL stopped working since Dec 2024
+	if (d > new Date(Date.UTC(2015,11,1))){// Old CDN URL stopped working since Dec 2024
 		datestr = d.toISOString().split('T')[0];
 		jsonUrl = jsonurl_2025.format(year);
 		fetchIdByDate(datestr)
@@ -222,7 +222,7 @@ function getEditionIssue(d){
 async function getDownloadList(){
 	this.document.getElementById("list").innerHTML = "";
 	year=document.getElementById("year_d").value;
-	if (year > 2024)
+	if (year > 2015)
 	{
 		jsonUrl = jsonurl_2025.format(year);
 		fetchIdList()
@@ -317,4 +317,5 @@ async function fetchIdList() {
         console.error("Error fetching JSON:", error);
     }
 }
+
 
