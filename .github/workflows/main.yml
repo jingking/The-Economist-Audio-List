@@ -8,13 +8,15 @@ on:
 jobs:
   merge:
     runs-on: ubuntu-latest
-    env:
-      MERGED_FILE_NAME: searchEditions$(date +%Y).json  #define output file name
-      CURRENT_YEAR: $(date +%Y)  #get current year
       
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Set year-based variables
+        run: |
+          echo "CURRENT_YEAR=$(date +%Y)" >> $GITHUB_ENV
+          echo "MERGED_FILE_NAME=searchEditions$(date +%Y).json" >> $GITHUB_ENV
 
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
