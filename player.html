@@ -11,12 +11,12 @@
   <link rel="apple-touch-icon" href="https://www.economist.com/engassets/ico/apple-touch-icon.png"/>
   
   
-  <link rel="manifest" href="manifest/site.webmanifest">
+  <link rel="manifest" href="https://monkfishare.gitlab.io/econaudio/manifest/site.webmanifest">
   <meta name="application-name" content="Econaudio">
   <meta name="apple-mobile-web-app-title" content="Econaudio">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.8.3/plyr.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
   <style>
     :root {
       --plyr-color-main: #e3120b;
@@ -163,15 +163,21 @@
             <div class="d-flex align-items-center">
               <span class="edition-info text-uppercase"></span>
               <div class="dropdown ms-2">
-                <button class="btn btn-sm text-warning bg-secondary bg-gradient" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Open in Media Player">
-                  <i class="fa-solid fa-fw fa-headphones"></i>
-                  Playlist
+                <button class="btn btn-sm text-warning bg-secondary bg-gradient" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Export and share options">
+                  <i class="fa-solid fa-fw fa-ellipsis-vertical"></i>
+
                 </button>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item" id="vlcLink" href="#"><i class="fa-solid fa-fw fa-play"></i> VLC</a></li>
                   <li><a class="dropdown-item" id="potPlayerLink" href="#"><i class="fa-brands fa-fw fa-windows"></i> PotPlayer</a></li>
                   <li><a class="dropdown-item" id="iinaLink" href="#"><i class="fa-brands fa-fw fa-apple"></i> IINA</a></li>
                   <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" id="pocketCastsLink" href="#"><i class="fa-solid fa-fw fa-podcast"></i> Pocket Casts</a></li>
+                  <li><a class="dropdown-item" id="podcastAddictLink" href="#"><i class="fa-solid fa-fw fa-podcast"></i> Podcast Addict</a></li>
+                  <li><a class="dropdown-item" id="overcastLink" href="#"><i class="fa-solid fa-fw fa-podcast"></i> Overcast</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" id="rssLink" href="#" target="_blank"><i class="fa-solid fa-fw fa-rss"></i> RSS Feed</a></li>
+                  <li><hr class="dropdown-divider"></li>												
                   <li><a class="dropdown-item" id="downloadM3u" href="#"><i class="fa-solid fa-fw fa-download"></i> Download M3U</a></li>
                   <li><a class="dropdown-item" id="downloadZip" href="#"><i class="fa-solid fa-fw fa-file-zipper"></i> Download ZIP</a></li>
                 </ul>
@@ -223,11 +229,11 @@
       </div>
     </div>
   </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.13/dayjs.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.13/plugin/advancedFormat.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.13/plugin/utc.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.8.3/plyr.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.18/dayjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.18/plugin/advancedFormat.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.18/plugin/utc.min.js"></script>
   <script>
     dayjs.extend(window.dayjs_plugin_advancedFormat);
     dayjs.extend(window.dayjs_plugin_utc);
@@ -260,6 +266,10 @@
       const vlcLink = document.getElementById('vlcLink');
       const potPlayerLink = document.getElementById('potPlayerLink');
       const iinaLink = document.getElementById('iinaLink');
+      const pocketCastsLink = document.getElementById('pocketCastsLink');
+      const podcastAddictLink = document.getElementById('podcastAddictLink');
+      const overcastLink = document.getElementById('overcastLink');
+      const rssLink = document.getElementById('rssLink');
       const downloadM3uLink = document.getElementById('downloadM3u');
       const downloadZipLink = document.getElementById('downloadZip');
       const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
@@ -334,11 +344,21 @@
       function updateM3uLinks(editionDate) {
         const baseGitLabUrl = 'https://gitlab.com/Monkfishare/econaudio/-/raw/main/assets/playlist';
         const m3uUrl = `${baseGitLabUrl}/economist_${editionDate}.m3u?ref_type=heads&inline=false`;
+        const rssUrl = 'https://gitlab.com/Monkfishare/econaudio/-/raw/main/assets/economist_feed.xml';
+        
         vlcLink.href = `vlc://${m3uUrl}`;
         potPlayerLink.href = `potplayer://${m3uUrl}`;
         const encodedUrl = encodeURIComponent(m3uUrl);
         iinaLink.href = `iina://weblink?url=${encodedUrl}`;
         downloadM3uLink.href = m3uUrl;
+        
+        rssLink.href = rssUrl;
+        
+        const rssUrlForApps = rssUrl.replace('https://', '');
+        pocketCastsLink.href = `pktc://subscribe/${rssUrlForApps}`;
+        podcastAddictLink.href = `podcastaddict://${rssUrlForApps}`;
+        const encodedRssUrl = encodeURIComponent(rssUrl);
+        overcastLink.href = `overcast://x-callback-url/add?url=${encodedRssUrl}`;
       }
 
       function updateZipLink(tegId) {
@@ -353,17 +373,23 @@
 
       async function findEditionTegId(editionDate) {
         try {
-          const response = await fetch('https://raw.githubusercontent.com/jingking/The-Economist-Audio-List/main/searchEditions2025.json');
+          const year = editionDate.split('-')[0];
+          const jsonFile = `searchEditions${year}.json`;
+          
+          const response = await fetch(`https://raw.githubusercontent.com/jingking/The-Economist-Audio-List/main/${jsonFile}`);
           if (!response.ok) {
-            throw new Error('Failed to fetch editions data');
+            console.error(`Failed to fetch ${jsonFile}`);
+            return null;
           }
+          
           const data = await response.json();
           const edges = data.data.searchEditions.edges;
-          const formattedEditionDate = editionDate;
+												   
           const matchingEdition = edges.find(edge => {
             const issueDate = edge.node.issueDate.split('T')[0];
-            return issueDate === formattedEditionDate;
+            return issueDate === editionDate;
           });
+          
           return matchingEdition ? matchingEdition.node.tegId : null;
         } catch (error) {
           console.error('Error fetching tegId:', error);
