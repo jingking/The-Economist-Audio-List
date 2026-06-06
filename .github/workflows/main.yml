@@ -26,7 +26,6 @@ jobs:
           curl -sSL "$ENDPOINT" \
             -H 'User-Agent: TheEconomist-Liskov-android' \
             -H 'accept: multipart/mixed; deferSpec=20220824, application/json' \
-            -H 'accept-encoding: gzip' \
             -H 'Content-Type: application/json' \
             -H 'x-apollo-operation-name: dummyOperation' \
             -H 'x-economist-consumer: TheEconomist-Liskov-android' \
