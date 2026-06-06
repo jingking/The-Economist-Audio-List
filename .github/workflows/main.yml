@@ -24,8 +24,16 @@ jobs:
       - name: Download new json
         run: |
           curl -sSL "$ENDPOINT" \
-            -H "Content-Type: application/json" \
-            -H "x-apollo-operation-name: dummyOperation" \
+            -H 'User-Agent: TheEconomist-Liskov-android' \
+            -H 'accept: multipart/mixed; deferSpec=20220824, application/json' \
+            -H 'accept-encoding: gzip' \
+            -H 'Content-Type: application/json' \
+            -H 'x-apollo-operation-name: dummyOperation' \
+            -H 'x-economist-consumer: TheEconomist-Liskov-android' \
+            -H 'x-teg-client-name: Economist-Android' \
+            -H 'x-teg-client-os: Android' \
+            -H 'x-teg-client-version: 4.40.0' \
+            -H 'x-app-trace-id: 123e4567-e89b-12d3-a456-426614174000'
             -o new.json
         env:
           ENDPOINT: ${{ secrets.endpoint }}
