@@ -11,7 +11,7 @@ jobs:
       
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set year-based variables
         run: |
@@ -25,6 +25,7 @@ jobs:
         run: |
           curl -sSL "$ENDPOINT" \
             -H "Content-Type: application/json" \
+            -H 'User-Agent: TheEconomist-Liskov-android' \
             -H "x-apollo-operation-name: dummyOperation" \
             -o new.json
         env:
