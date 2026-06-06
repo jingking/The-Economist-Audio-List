@@ -33,7 +33,7 @@ jobs:
             -H 'x-teg-client-name: Economist-Android' \
             -H 'x-teg-client-os: Android' \
             -H 'x-teg-client-version: 4.40.0' \
-            -H 'x-app-trace-id: 123e4567-e89b-12d3-a456-426614174000'
+            -H 'x-app-trace-id: 123e4567-e89b-12d3-a456-426614174000' \
             -o new.json
         env:
           ENDPOINT: ${{ secrets.endpoint }}
