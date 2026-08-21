@@ -21,23 +21,80 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Download new json
-        run: |
-          curl -sSL "$ENDPOINT" \
-            -H "Content-Type: application/json" \
-            -H 'User-Agent: TheEconomist-Liskov-android' \
-            -H "x-apollo-operation-name: dummyOperation" \
-            -o new.json
+      - name: Generate Signature and Execute GraphQL Request
         env:
-          ENDPOINT: ${{ secrets.endpoint }}
-
-      - name: Verify new.json exists
+          SECRET: ${{ secrets.SECRET }}
         run: |
-          test -s new.json || (echo "Download failed or file is empty!" && exit 1)
+          CORRELATION_ID=$(uuidgen)
+          TRACE_ID=$(uuidgen)
+          TIMESTAMP=$(date +%s%3N)
 
-      #- name: Show download result
-      #  run: cat new.json
+          VERSION_NAME="4.97.0"
+          VERSION_CODE="4734785"
 
+          MESSAGE="${CORRELATION_ID}:${TIMESTAMP}"
+
+          SIGNATURE=$(
+            echo -n "$MESSAGE" |
+            openssl dgst -sha256 -hmac "$SECRET" -binary |
+            base64 -w 0
+          )
+
+          echo "CORRELATION_ID=$CORRELATION_ID" >> "$GITHUB_ENV"
+          echo "TRACE_ID=$TRACE_ID" >> "$GITHUB_ENV"
+          echo "TIMESTAMP=$TIMESTAMP" >> "$GITHUB_ENV"
+          echo "SIGNATURE=$SIGNATURE" >> "$GITHUB_ENV"
+          echo "VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
+
+      - name: Download new json
+        env:
+          ENDPOINT: ${{ secrets.GRAPHQL_URL }}
+        run: |
+          HTTP_CODE=$(curl -sSL -G \
+            "$ENDPOINT" \
+            --data-urlencode "operationName=SearchEditions" \
+            --data-urlencode 'variables={"pagingInfo":{"pageSize":24,"pageNumber":1,"pagingType":"OFFSET"},"searchParams":{"editionType":["WEEKLY"],"countryCode":"US"}}' \
+            --data-urlencode 'query=query SearchEditions($pagingInfo: PaginationArguments!, $searchParams: SearchEditionFilter) { searchEditions(pagingInfo: $pagingInfo, searchParams: $searchParams) { edges { node { id tegId editionType issueDate headline flyTitle rubric datePublished cover { __typename ...EditionCoverFragment } } } } } fragment EditionCoverFragment on ImageComponent { sourceId url altText type dateModified width height credit }' \
+            -H "x-teg-signature: $SIGNATURE" \
+            -H "x-teg-timestamp: $TIMESTAMP" \
+            -H "x-teg-correlation-id: $CORRELATION_ID" \
+            -H "x-app-trace-id: $TRACE_ID" \
+            -H "x-consumer-service: liskov" \
+            -H "User-Agent: Liskov/$VERSION_NAME($VERSION_CODE) (android)" \
+            -H "x-teg-client-name: Economist-Android" \
+            -H "x-teg-client-os: Android" \
+            -H "x-teg-client-version: $VERSION_NAME" \
+            -H "X-Economist-Consumer: TheEconomist-Liskov-android-${VERSION_NAME}_${VERSION_CODE}" \
+            -o new.json \
+            -w "%{http_code}")
+
+          echo "HTTP status: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "GraphQL request failed:"
+            cat new.json
+            exit 1
+          fi 
+
+      - name: Verify new.json
+        run: |
+          test -s new.json || {
+            echo "Download failed or file is empty!"
+            exit 1
+          }
+
+          jq empty new.json || {
+            echo "Downloaded file is not valid JSON!"
+            cat new.json
+            exit 1
+          }
+
+          jq -e '.data.searchEditions.edges' new.json > /dev/null || {
+            echo "GraphQL response does not contain expected data!"
+            cat new.json
+            exit 1
+          }
 
       - name: Ensure merged file exists or create fallback
         run: |
