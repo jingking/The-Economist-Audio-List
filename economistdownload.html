@@ -1,180 +1,219 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"/>
-<!--
+
+<head>
+	<meta charset="utf-8" />
+	<!--
 Created by Jing on Apr 19, 2021
-Last updated on Jan 6, 2026
+Last updated on Oct 26, 2026
 Retrieve the audio archive from The Economist's CDN server.
 -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Economist Audio List</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>The Economist Audio List</title>
 
-<link rel="stylesheet" href="economistdownload.css" type="text/css" />
-<script type="text/javascript" src="economistdownload.js?v=1.05"></script>
+	<link rel="stylesheet" href="economistdownload.css" type="text/css" />
+	<script type="text/javascript" src="economistdownload.js?v=1.05"></script>
 </head>
 
 <body>
-<h1>The Economist Audio List</h1>
-<div class="tabs">
-  <input type="radio" id="tab1" name="tab-control" checked>
-  <input type="radio" id="tab2" name="tab-control">
-  <input type="radio" id="tab3" name="tab-control">
+	<h1>The Economist Audio List</h1>
+	<div class="tabs">
+		<input type="radio" id="tab1" name="tab-control" checked>
+		<input type="radio" id="tab2" name="tab-control">
+		<input type="radio" id="tab3" name="tab-control">
 
-  <ul>
-    <li title="Find Edition"><label for="tab1" role="button">
-		<svg viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-		    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-		    <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-		    <circle cx="18" cy="18" r="4" />
-		    <path d="M15 3v4" />
-		    <path d="M7 3v4" />
-		    <path d="M3 11h16" />
-		    <path d="M18 16.496v1.504l1 1" />
-		</svg>
-		<br><span>Find Edition</span></label>
-	</li>    
-    <li title="Download List"><label for="tab2" role="button">
-		<svg viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-			<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-			<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-			<polyline points="7 11 12 16 17 11" />
-			<line x1="12" y1="4" x2="12" y2="16" />
-		</svg>
-		<br><span>Download List</span></label>
-    </li>
-    <li title="Help"><label for="tab3" role="button">
-		<svg viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" stroke-linecap="round">
-			<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-			<circle cx="12" cy="12" r="9" />
-			<line x1="12" y1="17" x2="12" y2="17.01" />
-			<path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" />
-		</svg>
-		<br><span>Help</span></label>
-    </li>
-  </ul>
+		<ul>
+			<li title="Find Edition"><label for="tab1" role="button">
+					<svg viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+						<path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+						<circle cx="18" cy="18" r="4" />
+						<path d="M15 3v4" />
+						<path d="M7 3v4" />
+						<path d="M3 11h16" />
+						<path d="M18 16.496v1.504l1 1" />
+					</svg>
+					<br><span>Find Edition</span></label>
+			</li>
+			<li title="Download List"><label for="tab2" role="button">
+					<svg viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+						<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+						<polyline points="7 11 12 16 17 11" />
+						<line x1="12" y1="4" x2="12" y2="16" />
+					</svg>
+					<br><span>Download List</span></label>
+			</li>
+			<li title="Help"><label for="tab3" role="button">
+					<svg viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" stroke-linecap="round">
+						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+						<circle cx="12" cy="12" r="9" />
+						<line x1="12" y1="17" x2="12" y2="17.01" />
+						<path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" />
+					</svg>
+					<br><span>Help</span></label>
+			</li>
+		</ul>
 
-  <div class="slider">
-    <div class="indicator"></div>
-  </div>
-  
-  <div class="content"> 
-    <section>
-		<h2>Find Edition</h2>
-	  
-		<label for="fromdate">Select Date:</label>
-		&nbsp;&nbsp;&nbsp; (Valid date range: 2007-05-26 ~ Current)
-		<br />
+		<div class="slider">
+			<div class="indicator"></div>
+		</div>
 
-		<select name="" id="year">
-		
-			<option value="2026" selected="selected">2026</option>
-			<option value="2025">2025</option>
-			<option value="2024">2024</option>
-			<option value="2023">2023</option>
-			<option value="2022">2022</option>
-			<option value="2021">2021</option>
-			<option value="2020">2020</option>
-			<option value="2019">2019</option>
-			<option value="2018">2018</option>
-			<option value="2017">2017</option>
-			<option value="2016">2016</option>
-			<option value="2015">2015</option>
-			<option value="2014">2014</option>
-			<option value="2013">2013</option>
-			<option value="2012">2012</option>
-			<option value="2011">2011</option>
-			<option value="2010">2010</option>
-			<option value="2009">2009</option>
-			<option value="2008">2008</option> 
-			<option value="2007">2007</option>
-		</select>
-		<select name="" id="month">
-			<option value="0" selected="selected"> January</option>
-			<option value="1">February</option>
-			<option value="2">March</option>
-			<option value="3">April</option>
-			<option value="4">May</option>
-			<option value="5">June</option>
-			<option value="6">July</option>
-			<option value="7">August</option>
-			<option value="8">September</option>
-			<option value="9">October</option>
-			<option value="10">Novenmer</option>
-			<option value="11">December</option>
-		</select>
-		<select name="" id="day">
-			<option>1</option><option selected="selected">2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option>
-		</select> 
-		&nbsp;&nbsp;&nbsp;  
-			
-		<button onclick="getEditionByDate()">Get</button><br />
-		<br />
+		<div class="content">
+			<section>
+				<h2>Find Edition</h2>
+				As of October 26, 2026, the public audio ZIP download requires the appropriate authentication headers to
+				be included.<br />
 
-		<div id="edition_content">
-			<p id="edition_title"></p>
-			<div id="edition_img"></div>
-			<audio id="edition_audio" controls=true preload = "none">
-			 <source id="edition_audiosource" src="" type="audio/mp4" />
-			 <p>Your browser does not support HTML5 audio.</p>
-			</audio>
-			<p>Download MP3 Audio:</p>
-			<p id="edition_url"></p>  
-		</div> 
-	  
-    </section>
-	
-    <section>
-		<h2>Download List</h2>
-	  
-		<label for="fromdate">Select Year:</label>
-		<br />
-		<select name="" id="year_d">
-			<option value="2026" selected="selected">2026</option>
-			<option value="2025">2025</option>	
-			<option value="2024">2024</option>						
-			<option value="2023">2023</option>			
-			<option value="2022">2022</option>
-			<option value="2021">2021</option>
-			<option value="2020">2020</option>
-			<option value="2019">2019</option>
-			<option value="2018">2018</option>
-			<option value="2017">2017</option>
-			<option value="2016">2016</option>
-		</select>
-		&nbsp;&nbsp;&nbsp;
-		
-		<button onclick="getDownloadList()">List</button>
-    
-		<p>URL List:</p>
-		<p id="list"></p>
-             
-    </section>
+				<label for="fromdate">Select Date:</label>
+				&nbsp;&nbsp;&nbsp; (Valid date range: 2007-05-26 ~ Current)
+				<br />
 
-    <section>
-		<h2>Help</h2>
-      
-		<p>The purpose of this website is to help subscribers retrieve audio archives of The Economist Weekly Editions from the CDN server.  </p>
-		<h3>Find Edition</h3>
-		<p>This function takes a selected date as input and returns a weekly edition that covers the selected date. For example, with input as "2021 Jan 1st", the application will return the "Weekly Edition 2020-12-19", which covers the date from 2020-12-19 to 2021-01-01.
+				<select name="" id="year">
 
-		<p>For each weekly edition, the application will try to get cover images (for UK or US version) and the full edition archive audio file download link. 
-		If the returned weekly edition comes with an online media in *.m4a format, the audio player will be automatically loaded. </p>
-			  
-		<h3>Download List</h3>
-		<p>This function takes a select year value as input and generates the whole year's audio archive download list. </p>
-	    
-	    	<br /><br /><br />
-	    	<p><b>Github</b>&nbsp;&nbsp;&nbsp;<a href="https://github.com/jingking/The-Economist-Audio-List">The-Economist-Audio-List</a></p>
+					<option value="2026" selected="selected">2026</option>
+					<option value="2025">2025</option>
+					<option value="2024">2024</option>
+					<option value="2023">2023</option>
+					<option value="2022">2022</option>
+					<option value="2021">2021</option>
+					<option value="2020">2020</option>
+					<option value="2019">2019</option>
+					<option value="2018">2018</option>
+					<option value="2017">2017</option>
+					<option value="2016">2016</option>
+					<option value="2015">2015</option>
+					<option value="2014">2014</option>
+					<option value="2013">2013</option>
+					<option value="2012">2012</option>
+					<option value="2011">2011</option>
+					<option value="2010">2010</option>
+					<option value="2009">2009</option>
+					<option value="2008">2008</option>
+					<option value="2007">2007</option>
+				</select>
+				<select name="" id="month">
+					<option value="0" selected="selected"> January</option>
+					<option value="1">February</option>
+					<option value="2">March</option>
+					<option value="3">April</option>
+					<option value="4">May</option>
+					<option value="5">June</option>
+					<option value="6">July</option>
+					<option value="7">August</option>
+					<option value="8">September</option>
+					<option value="9">October</option>
+					<option value="10">Novenmer</option>
+					<option value="11">December</option>
+				</select>
+				<select name="" id="day">
+					<option>1</option>
+					<option selected="selected">2</option>
+					<option>3</option>
+					<option>4</option>
+					<option>5</option>
+					<option>6</option>
+					<option>7</option>
+					<option>8</option>
+					<option>9</option>
+					<option>10</option>
+					<option>11</option>
+					<option>12</option>
+					<option>13</option>
+					<option>14</option>
+					<option>15</option>
+					<option>16</option>
+					<option>17</option>
+					<option>18</option>
+					<option>19</option>
+					<option>20</option>
+					<option>21</option>
+					<option>22</option>
+					<option>23</option>
+					<option>24</option>
+					<option>25</option>
+					<option>26</option>
+					<option>27</option>
+					<option>28</option>
+					<option>29</option>
+					<option>30</option>
+					<option>31</option>
+				</select>
+				&nbsp;&nbsp;&nbsp;
 
-    </section>
-  
-  </div>
+				<button onclick="getEditionByDate()">Get</button><br />
+				<br />
 
-  </div>
+				<div id="edition_content">
+					<p id="edition_title"></p>
+					<div id="edition_img"></div>
+					<audio id="edition_audio" controls=true preload="none">
+						<source id="edition_audiosource" src="" type="audio/mp4" />
+						<p>Your browser does not support HTML5 audio.</p>
+					</audio>
+					<p>Download MP3 Audio:</p>
+					<p id="edition_url"></p>
+				</div>
+
+			</section>
+
+			<section>
+				<h2>Download List</h2>
+
+				<label for="fromdate">Select Year:</label>
+				<br />
+				<select name="" id="year_d">
+					<option value="2026" selected="selected">2026</option>
+					<option value="2025">2025</option>
+					<option value="2024">2024</option>
+					<option value="2023">2023</option>
+					<option value="2022">2022</option>
+					<option value="2021">2021</option>
+					<option value="2020">2020</option>
+					<option value="2019">2019</option>
+					<option value="2018">2018</option>
+					<option value="2017">2017</option>
+					<option value="2016">2016</option>
+				</select>
+				&nbsp;&nbsp;&nbsp;
+
+				<button onclick="getDownloadList()">List</button>
+
+				<p>URL List:</p>
+				<p id="list"></p>
+
+			</section>
+
+			<section>
+				<h2>Help</h2>
+
+				<p>The purpose of this website is to help subscribers retrieve audio archives of The Economist Weekly
+					Editions from the CDN server. </p>
+				<h3>Find Edition</h3>
+				<p>This function takes a selected date as input and returns a weekly edition that covers the selected
+					date. For example, with input as "2021 Jan 1st", the application will return the "Weekly Edition
+					2020-12-19", which covers the date from 2020-12-19 to 2021-01-01.
+
+				<p>For each weekly edition, the application will try to get cover images (for UK or US version) and the
+					full edition archive audio file download link.
+					If the returned weekly edition comes with an online media in *.m4a format, the audio player will be
+					automatically loaded. </p>
+
+				<h3>Download List</h3>
+				<p>This function takes a select year value as input and generates the whole year's audio archive
+					download list. </p>
+
+				<br /><br /><br />
+				<p><b>Github</b>&nbsp;&nbsp;&nbsp;<a
+						href="https://github.com/jingking/The-Economist-Audio-List">The-Economist-Audio-List</a></p>
+
+			</section>
+
+		</div>
+
+	</div>
 
 
 </body>
+
 </html>
-
-
-
